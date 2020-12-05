@@ -1,4 +1,10 @@
 pipeline {
+    environment {
+	    registry = 'glazaror/mkdocs'
+	    registryCredential = 'docker-creds'
+	    dockerImage = ''
+	}
+
 	agent any
 	
 	stages {
@@ -25,6 +31,17 @@ pipeline {
 				}
 			}
 		}
+
+		stage ('Publish Stage') {
+            steps {
+                docker.withRegistry('https://registry.hub.docker.com', 'glazaror-dockerhub') {
+                    def customImage = docker.build('glazaror/cliente-microservice')
+                    customImage.push()
+                }
+            }
+        }
+
+
 	}
 	
 	post {
