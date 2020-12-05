@@ -47,13 +47,15 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'docker stop cliente-microservice'
-                        echo 'cliente-microservice is not currently running'
+                        '''
+                        docker stop cliente-microservice
+                        docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice
+                        '''
+                        echo 'cliente-microservice was running and it was stopped'
                     } catch (Exception e) {
-                        echo 'cliente-microservice was currently running and it was stopped'
+                        echo 'starting cliente-microservice'
+                        sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice'
                     }
-                    echo 'starting cliente-microservice'
-                    sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice'
                 }
             }
         }
