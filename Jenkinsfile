@@ -45,14 +45,16 @@ pipeline {
 
         stage ('Delivery Stage') {
             steps {
-                try {
-                    sh 'docker stop cliente-microservice'
-                    echo 'cliente-microservice is not currently running'
-                } catch (Exception e) {
-                    echo 'cliente-microservice is not currently running and it was stopped'
+                script {
+                    try {
+                        sh 'docker stop cliente-microservice'
+                        echo 'cliente-microservice is not currently running'
+                    } catch (Exception e) {
+                        echo 'cliente-microservice is not currently running and it was stopped'
+                    }
+                    echo 'starting cliente-microservice'
+                    sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice'
                 }
-                echo 'starting cliente-microservice'
-                sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice'
             }
         }
 
