@@ -47,6 +47,7 @@ pipeline {
             steps {
                 script {
                     try {
+                        sh
                         '''
                         docker stop cliente-microservice
                         docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice
