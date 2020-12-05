@@ -43,6 +43,12 @@ pipeline {
             }
         }
 
+        stage ('Delivery Stage') {
+            steps {
+                sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice '
+            }
+        }
+
 
 	}
 	
