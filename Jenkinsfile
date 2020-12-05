@@ -45,7 +45,8 @@ pipeline {
 
         stage ('Delivery Stage') {
             steps {
-                sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice '
+                sh 'docker stop cliente-microservice'
+                sh 'docker run -p 8090:8090 -d glazaror/cliente-microservice --name cliente-microservice'
             }
         }
 
