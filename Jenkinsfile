@@ -56,7 +56,6 @@ pipeline {
                 }
             }
         }
-sh 'docker top cliente-microservice || docker run -p 8090:8090 -d --name cliente-microservice glazaror/cliente-microservice'
 
 	}
 	
