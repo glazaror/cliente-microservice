@@ -46,18 +46,7 @@ pipeline {
         stage ('Delivery Stage') {
             steps {
                 script {
-                    try {
-                        sh
-                        '''
-                        docker stop cliente-microservice
-                        docker rm cliente-microservice
-                        docker run -p 8090:8090 -d --name cliente-microservice glazaror/cliente-microservice
-                        '''
-                        echo 'cliente-microservice was running and it was stopped'
-                    } catch (Exception e) {
-                        echo 'starting cliente-microservice'
-                        sh 'docker run -p 8090:8090 -d --name cliente-microservice glazaror/cliente-microservice'
-                    }
+                    sh 'docker top cliente-microservice || docker run -p 8090:8090 -d --name cliente-microservice glazaror/cliente-microservice'
                 }
             }
         }
