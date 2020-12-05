@@ -50,6 +50,7 @@ pipeline {
                         sh
                         '''
                         docker stop cliente-microservice
+                        docker rm cliente-microservice
                         docker run -p 8090:8090 -d --name cliente-microservice glazaror/cliente-microservice
                         '''
                         echo 'cliente-microservice was running and it was stopped'
