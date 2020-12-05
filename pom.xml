@@ -10,7 +10,7 @@
 	<packaging>jar</packaging>
 
 	<name>cliente-microservice</name>
-	<description>Microservicio de clientes</description>
+	<description>Customer microservice</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -61,6 +61,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.16.16</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -68,6 +75,30 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.0.0</version>
+				<inherited>true</inherited>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<configLocation>${project.basedir}/checkstyle.xml</configLocation>
+							<suppressionsLocation>${project.basedir}/checkstyle-suppressions.xml
+							</suppressionsLocation>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<logViolationsToConsole>true</logViolationsToConsole>
+							<failsOnError>true</failsOnError>
+							<includeTestSourceDirectory>true</includeTestSourceDirectory>
+							<violationSeverity>warning</violationSeverity>
+							<skip>false</skip>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
