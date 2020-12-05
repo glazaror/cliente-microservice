@@ -34,9 +34,11 @@ pipeline {
 
 		stage ('Publish Stage') {
             steps {
-                docker.withRegistry('https://registry.hub.docker.com', 'glazaror-dockerhub') {
-                    def customImage = docker.build('glazaror/cliente-microservice')
-                    customImage.push()
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'glazaror-dockerhub') {
+                        def customImage = docker.build('glazaror/cliente-microservice')
+                        customImage.push()
+                    }
                 }
             }
         }
