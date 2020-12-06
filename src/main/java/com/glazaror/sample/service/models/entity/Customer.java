@@ -33,7 +33,7 @@ public class Customer implements Serializable {
   private Long id;
 
   @NotEmpty(message = "it cannot be empty")
-  @Size(min = 4, max = 12, message = "the size should be between 4 and 12")
+  @Size(min = 4, max = 15, message = "the size should be between 4 and 12")
   @Column(nullable = false)
   private String name;
 

@@ -1,5 +1,6 @@
 package com.glazaror.sample.service.controllers;
 
+import static java.util.Collections.singletonMap;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -7,8 +8,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.glazaror.sample.service.models.dto.CustomerKpi;
+import com.glazaror.sample.service.models.dto.CustomerWithProjectionDto;
 import com.glazaror.sample.service.models.entity.Customer;
+import com.glazaror.sample.service.models.exception.BusinessException;
 import com.glazaror.sample.service.models.services.CustomerService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +53,14 @@ public class CustomerRestController {
    * @return all customers.
    */
   @GetMapping
-  public List<Customer> getCustomers() {
+  @Operation(summary = "Get all customers",
+      description = "Get complete information about customers")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Customers were found."),
+      @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
+      @ApiResponse(responseCode = "404", description = "Customers were not found."),
+      @ApiResponse(responseCode = "500", description = "There was an system error.")})
+  public List<Customer> findCustomers() {
     return customerService.findAll();
   }
 
@@ -56,21 +69,26 @@ public class CustomerRestController {
    * @return found customer.
    */
   @GetMapping("/{id}")
-  public ResponseEntity<?> getById(@PathVariable Long id) {
-    Map<String, Object> response = new HashMap<>();
-
+  @Operation(summary = "Get customer projection by an identifier",
+      description = "Get complete information (analysis and projection) about one customer")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Customer has been found."),
+      @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
+      @ApiResponse(responseCode = "404", description = "Customer doesn't exist."),
+      @ApiResponse(responseCode = "500", description = "There was an system error.")})
+  public ResponseEntity<?> findById(@PathVariable Long id) {
     try {
-      Customer customer = customerService.findById(id);
+      CustomerWithProjectionDto customer = customerService.findById(id);
       if (customer == null) {
-        response.put("message", "The customer ID: " + id + " doesn't exist!");
-        return new ResponseEntity<>(response, NOT_FOUND);
+        return new ResponseEntity<>(
+            singletonMap("message", "The customer ID: " + id + " doesn't exist!"),
+            NOT_FOUND);
       }
       return new ResponseEntity<>(customer, OK);
 
-    } catch (DataAccessException e) {
-      response.put("message", "There was an error at querying the customer data");
-      response.put("error", e.getMessage() + ":"  + e.getMostSpecificCause().getMessage());
-      return new ResponseEntity<>(response, INTERNAL_SERVER_ERROR);
+    } catch (BusinessException e) {
+      return new ResponseEntity<>(singletonMap("message", e.getMessage()),
+          INTERNAL_SERVER_ERROR);
     }
 
   }
@@ -80,7 +98,14 @@ public class CustomerRestController {
    * @return page of customers.
    */
   @GetMapping("/page/{page}")
-  public Page<Customer> getCustomersByPage(@PathVariable Integer page) {
+  @Operation(summary = "Get customers by a page",
+      description = "Get complete information about a page of customers")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Customers were found."),
+      @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
+      @ApiResponse(responseCode = "404", description = "Customers were not found."),
+      @ApiResponse(responseCode = "500", description = "There was an system error.")})
+  public Page<Customer> findCustomersByPage(@PathVariable Integer page) {
     return customerService.findAll(PageRequest.of(page, 4));
   }
 
@@ -89,6 +114,13 @@ public class CustomerRestController {
    * @return customer statistics.
    */
   @GetMapping("/kpi")
+  @Operation(summary = "Get customer statistics",
+      description = "Get customer statistics based on their age")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Customer statistics has been collected."),
+      @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
+      @ApiResponse(responseCode = "404", description = "Customer statistics doesn't exist."),
+      @ApiResponse(responseCode = "500", description = "There was an system error.")})
   public CustomerKpi getCustomerKpi() {
     return customerService.getCustomerKpi();
   }
@@ -98,9 +130,13 @@ public class CustomerRestController {
    * @return result.
    */
   @PostMapping
+  @Operation(summary = "Creates a new customer",
+      description = "Creates a new customer")
+  @ApiResponses({
+      @ApiResponse(responseCode = "201", description = "Customer has been successfully saved."),
+      @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
+      @ApiResponse(responseCode = "500", description = "There was an system error.")})
   public ResponseEntity<?> create(@Valid @RequestBody Customer customer, BindingResult result) {
-
-    Map<String, Object> response = new HashMap<>();
 
     if (result.hasErrors()) {
       List<String> errors = result.getFieldErrors()
@@ -108,20 +144,19 @@ public class CustomerRestController {
           .map(err -> "The field '" + err.getField() + "' " + err.getDefaultMessage())
           .collect(Collectors.toList());
 
-      response.put("errors", errors);
-      return new ResponseEntity<>(response, BAD_REQUEST);
+      return new ResponseEntity<>(singletonMap("errors", errors), BAD_REQUEST);
     }
 
     try {
       Customer customerNew = customerService.save(customer);
+      Map<String, Object> response = new HashMap<>();
       response.put("message", "The customer was successfully created!");
       response.put("customer", customerNew);
       return new ResponseEntity<>(response, CREATED);
 
-    } catch (DataAccessException e) {
-      response.put("message", "There was an error at saving customer");
-      response.put("error", e.getMessage() + " : " + e.getMostSpecificCause().getMessage());
-      return new ResponseEntity<>(response, INTERNAL_SERVER_ERROR);
+    } catch (BusinessException e) {
+      return new ResponseEntity<>(singletonMap("message", e.getMessage()),
+          INTERNAL_SERVER_ERROR);
     }
 
 
