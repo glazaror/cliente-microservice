@@ -5,6 +5,7 @@ import com.glazaror.sample.service.models.dto.CustomerWithProjectionDto;
 import com.glazaror.sample.service.models.entity.Customer;
 import com.glazaror.sample.service.models.exception.BusinessException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +22,10 @@ public interface CustomerService {
 
   Page<Customer> findAll(Pageable pageable) throws BusinessException;
 
-  CustomerWithProjectionDto findById(Long id) throws BusinessException;
+  Optional<CustomerWithProjectionDto> findById(Long id) throws BusinessException;
 
   Customer save(Customer customer) throws BusinessException;
 
-  CustomerKpi getCustomerKpi() throws BusinessException;
+  Optional<CustomerKpi> getCustomerKpi() throws BusinessException;
 
 }

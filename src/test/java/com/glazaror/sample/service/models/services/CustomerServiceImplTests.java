@@ -2,6 +2,7 @@ package com.glazaror.sample.service.models.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,7 +14,6 @@ import com.glazaror.sample.service.models.repository.CustomerRepository;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -52,7 +52,7 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenADataAccessException_whenFindAll_thenReturnBusinessException() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatThrowsException);
+    var customerService = new CustomerServiceImpl(repositoryThatThrowsException);
 
     when(repositoryThatThrowsException.findAll()).thenThrow(mock(DataAccessException.class));
     assertThrows(BusinessException.class, customerService::findAll);
@@ -60,7 +60,7 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenADataAccessException_whenFindAllByPage_thenReturnBusinessException() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatThrowsException);
+    var customerService = new CustomerServiceImpl(repositoryThatThrowsException);
 
     when(repositoryThatThrowsException.findAll(pageable)).thenThrow(mock(DataAccessException.class));
     assertThrows(BusinessException.class, () -> customerService.findAll(pageable));
@@ -68,7 +68,7 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenADataAccessException_whenFindById_thenReturnBusinessException() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatThrowsException);
+    var customerService = new CustomerServiceImpl(repositoryThatThrowsException);
 
     when(repositoryThatThrowsException.findById(any())).thenThrow(mock(DataAccessException.class));
     assertThrows(BusinessException.class, () -> customerService.findById(10L));
@@ -76,7 +76,7 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenCurrentData_whenFindAll_thenReturnAllCurrentData() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatReturnsData);
+    var customerService = new CustomerServiceImpl(repositoryThatReturnsData);
 
     List<Customer> customers = new ArrayList<>();
     IntStream.range(0, 10).forEach(i -> customers.add(customer));
@@ -88,7 +88,7 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenCurrentData_whenFindAllByPage_thenReturnAllCurrentDataByPage() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatReturnsData);
+    var customerService = new CustomerServiceImpl(repositoryThatReturnsData);
     when(page.getTotalElements()).thenReturn(10L);
     when(repositoryThatReturnsData.findAll(any(Pageable.class))).thenReturn(page);
 
@@ -97,14 +97,14 @@ public class CustomerServiceImplTests {
 
   @Test
   public void givenCurrentData_whenFindById_thenReturnCustomerProjection() {
-    CustomerService customerService = new CustomerServiceImpl(repositoryThatReturnsData);
+    var customerService = new CustomerServiceImpl(repositoryThatReturnsData);
 
-    Date birthDate = java.util.Date.from(
+    var birthDate = java.util.Date.from(
         LocalDate.of(2000, 4, 20).atStartOfDay()
           .atZone(ZoneId.systemDefault())
           .toInstant());
 
-    Date expectedFinishDate = java.util.Date.from(
+    var expectedFinishDate = java.util.Date.from(
         LocalDate.of(2090, 4, 20).atStartOfDay()
           .atZone(ZoneId.systemDefault())
           .toInstant());
@@ -118,6 +118,8 @@ public class CustomerServiceImplTests {
     when(repositoryThatReturnsData.findById(any())).thenReturn(Optional.of(customer));
     when(repositoryThatReturnsData.findMaxAge()).thenReturn(90);
 
-    assertEquals(expectedFinishDate, customerService.findById(20L).getCalculatedDeathDate());
+    var customerProjection = customerService.findById(20L);
+    assertTrue(customerProjection.isPresent());
+    assertEquals(expectedFinishDate, customerService.findById(20L).get().getCalculatedDeathDate());
   }
 }

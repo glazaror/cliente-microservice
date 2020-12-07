@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @RequiredArgsConstructor
 public class CustomerWithProjectionDto implements Serializable {
+  private static final long serialVersionUID = 3000L;
+
   private final Long id;
   private final String name;
   private final String lastName;

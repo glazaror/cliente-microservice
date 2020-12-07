@@ -9,6 +9,7 @@ import com.glazaror.sample.service.models.exception.BusinessException;
 import com.glazaror.sample.service.models.repository.CustomerRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,13 +60,13 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   @Transactional(readOnly = true)
-  public CustomerWithProjectionDto findById(Long id) throws BusinessException {
+  public Optional<CustomerWithProjectionDto> findById(Long id) throws BusinessException {
     try {
-      Customer customer = customerDao.findById(id).orElse(null);
+      var customer = customerDao.findById(id).orElse(null);
       if (customer == null) {
-        return null;
+        return Optional.empty();
       }
-      return CustomerWithProjectionDto.builder()
+      return Optional.of(CustomerWithProjectionDto.builder()
           .name(customer.getName())
           .lastName(customer.getLastName())
           .age(customer.getAge())
@@ -73,7 +74,7 @@ public class CustomerServiceImpl implements CustomerService {
           .id(customer.getId())
           .calculatedDeathDate(DateUtils.addYears(customer.getBirthDate(),
               customerDao.findMaxAge()))
-          .build();
+          .build());
 
     } catch (DataAccessException e) {
       log.error("There was an error at querying the customer data", e);
@@ -93,16 +94,19 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
   @Override
-  public CustomerKpi getCustomerKpi() throws BusinessException {
-    List<Customer> customers = customerDao.findAll();
-    return new CustomerKpi(
+  public Optional<CustomerKpi> getCustomerKpi() throws BusinessException {
+    var customers = customerDao.findAll();
+    if (customers.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new CustomerKpi(
         round(customers.stream()
             .mapToDouble(Customer::getAge)
             .average()
             .orElse(0), DECIMAL_STATISTICS_PRECISION),
         round(new DescriptiveStatistics(customers.stream()
             .mapToDouble(Customer::getAge).toArray())
-            .getStandardDeviation(), DECIMAL_STATISTICS_PRECISION));
+            .getStandardDeviation(), DECIMAL_STATISTICS_PRECISION)));
   }
 
 }

@@ -1,14 +1,11 @@
 package com.glazaror.sample.service.controllers;
 
-import static java.util.Collections.singletonMap;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.glazaror.sample.service.models.dto.CustomerKpi;
-import com.glazaror.sample.service.models.dto.CustomerWithProjectionDto;
 import com.glazaror.sample.service.models.entity.Customer;
 import com.glazaror.sample.service.models.exception.BusinessException;
 import com.glazaror.sample.service.models.services.CustomerService;
@@ -17,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -80,16 +76,14 @@ public class CustomerRestController {
       @ApiResponse(responseCode = "500", description = "There was an system error.")})
   public ResponseEntity<?> findById(@PathVariable Long id) {
     try {
-      CustomerWithProjectionDto customer = customerService.findById(id);
-      if (customer == null) {
-        return new ResponseEntity<>(
-            singletonMap("message", "The customer ID: " + id + " doesn't exist!"),
-            NOT_FOUND);
-      }
-      return new ResponseEntity<>(customer, OK);
+      return customerService.findById(id)
+          .map(customerWithProjection -> new ResponseEntity<Object>(customerWithProjection, OK))
+          .orElseGet(() -> new ResponseEntity<>(
+              Map.of("message", "The customer ID: " + id + " doesn't exist!"),
+              NOT_FOUND));
 
     } catch (BusinessException e) {
-      return new ResponseEntity<>(singletonMap("message", e.getMessage()),
+      return new ResponseEntity<>(Map.of("message", e.getMessage()),
           INTERNAL_SERVER_ERROR);
     }
 
@@ -123,8 +117,18 @@ public class CustomerRestController {
       @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
       @ApiResponse(responseCode = "404", description = "Customer statistics doesn't exist."),
       @ApiResponse(responseCode = "500", description = "There was an system error.")})
-  public CustomerKpi getCustomerKpi() {
-    return customerService.getCustomerKpi();
+  public ResponseEntity<?> getCustomerKpi() {
+    try {
+      return customerService.getCustomerKpi()
+          .map(customerKpi -> new ResponseEntity<Object>(customerKpi, OK))
+          .orElseGet(() -> new ResponseEntity<>(
+              Map.of("message", "There is no customer KPI!"),
+              NOT_FOUND));
+
+    } catch (BusinessException e) {
+      return new ResponseEntity<>(Map.of("message", e.getMessage()),
+              INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -139,28 +143,25 @@ public class CustomerRestController {
       @ApiResponse(responseCode = "400", description = "Client has sent invalid data."),
       @ApiResponse(responseCode = "500", description = "There was an system error.")})
   public ResponseEntity<?> create(@Valid @RequestBody Customer customer, BindingResult result) {
-
     if (result.hasErrors()) {
-      List<String> errors = result.getFieldErrors()
-          .stream()
-          .map(err -> "The field '" + err.getField() + "' " + err.getDefaultMessage())
-          .collect(Collectors.toList());
-
-      return new ResponseEntity<>(singletonMap("errors", errors), BAD_REQUEST);
+      return new ResponseEntity<>(
+          Map.of("errors",
+              result.getFieldErrors()
+                .stream()
+                .map(err -> "The field '" + err.getField() + "' " + err.getDefaultMessage())
+                .collect(Collectors.toList())),
+          BAD_REQUEST);
     }
 
     try {
-      Customer customerNew = customerService.save(customer);
-      Map<String, Object> response = new HashMap<>();
-      response.put("message", "The customer was successfully created!");
-      response.put("customer", customerNew);
-      return new ResponseEntity<>(response, CREATED);
+      return new ResponseEntity<>(
+          Map.of("message", "The customer was successfully created!",
+            "customer", customerService.save(customer)),
+          CREATED);
 
     } catch (BusinessException e) {
-      return new ResponseEntity<>(singletonMap("message", e.getMessage()),
+      return new ResponseEntity<>(Map.of("message", e.getMessage()),
           INTERNAL_SERVER_ERROR);
     }
-
-
   }
 }

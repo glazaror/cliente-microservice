@@ -50,5 +50,5 @@ public class Customer implements Serializable {
   @Temporal(TemporalType.DATE)
   private Date birthDate;
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1000L;
 }

@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class CustomerKpi implements Serializable {
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2000L;
 
   private final Double averageAge;
   private final Double standardDeviationAge;
