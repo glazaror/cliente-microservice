@@ -1,8 +1,8 @@
 pipeline {
     agent any
 
-    environment {
-        JAVA_HOME = "${tool 'openjdk-11'}"
+    tools {
+        jdk "openjdk-11"
     }
 
     stages {
