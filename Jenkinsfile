@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'openjdk-11'
+        jdk 'openjdk-11-2'
         //maven 'apache-maven-3.x'
     }
 
@@ -21,7 +21,7 @@ pipeline {
 
         stage ('Testing Stage') {
             steps {
-                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11') {
+                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11-2') {
                     sh 'mvn test'
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
 
         stage ('Deploy Artifact Stage') {
             steps {
-                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11') {
+                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11-2') {
                     sh 'mvn install -Dmaven.test.skip=true'
                 }
             }
