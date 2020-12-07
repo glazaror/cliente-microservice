@@ -3,12 +3,7 @@ pipeline {
 
     tools {
         jdk 'openjdk-11-2'
-        //maven 'apache-maven-3.x'
     }
-
-    //environment {
-        //JAVA_HOME =
-    //}
 
     stages {
         stage ('Compile Stage') {
@@ -21,7 +16,7 @@ pipeline {
 
         stage ('Testing Stage') {
             steps {
-                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11-2') {
+                withMaven(maven: 'maven_3_6_3') {
                     sh 'mvn test'
                 }
             }
@@ -29,7 +24,7 @@ pipeline {
 
         stage ('Deploy Artifact Stage') {
             steps {
-                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11-2') {
+                withMaven(maven: 'maven_3_6_3') {
                     sh 'mvn install -Dmaven.test.skip=true'
                 }
             }
