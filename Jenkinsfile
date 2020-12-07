@@ -4,6 +4,11 @@ pipeline {
     tools {
         jdk 'openjdk-11'
         //maven 'apache-maven-3.x'
+        sh 'echo $JAVA_HOME'
+    }
+
+    environment {
+        //JAVA_HOME =
     }
 
     stages {
