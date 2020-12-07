@@ -6,9 +6,9 @@ pipeline {
         //maven 'apache-maven-3.x'
     }
 
-    environment {
+    //environment {
         //JAVA_HOME =
-    }
+    //}
 
     stages {
         stage ('Compile Stage') {
