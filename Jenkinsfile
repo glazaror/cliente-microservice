@@ -7,7 +7,7 @@ pipeline {
                 jdk "openjdk-11"
             }
             steps {
-                withMaven(maven: 'maven_3_6_3') {
+                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11') {
                     sh 'mvn clean compile'
                 }
             }
@@ -18,7 +18,7 @@ pipeline {
                 jdk "openjdk-11"
             }
             steps {
-                withMaven(maven: 'maven_3_6_3') {
+                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11') {
                     sh 'mvn test'
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
                 jdk "openjdk-11"
             }
             steps {
-                withMaven(maven: 'maven_3_6_3') {
+                withMaven(maven: 'maven_3_6_3', jdk: 'openjdk-11') {
                     sh 'mvn install -Dmaven.test.skip=true'
                 }
             }
