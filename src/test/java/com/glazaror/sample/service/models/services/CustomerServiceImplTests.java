@@ -14,6 +14,7 @@ import com.glazaror.sample.service.models.repository.CustomerRepository;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -99,12 +100,12 @@ public class CustomerServiceImplTests {
   public void givenCurrentData_whenFindById_thenReturnCustomerProjection() {
     var customerService = new CustomerServiceImpl(repositoryThatReturnsData);
 
-    var birthDate = java.util.Date.from(
+    var birthDate = Date.from(
         LocalDate.of(2000, 4, 20).atStartOfDay()
           .atZone(ZoneId.systemDefault())
           .toInstant());
 
-    var expectedFinishDate = java.util.Date.from(
+    var expectedFinishDate = Date.from(
         LocalDate.of(2090, 4, 20).atStartOfDay()
           .atZone(ZoneId.systemDefault())
           .toInstant());
