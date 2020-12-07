@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        JAVA_HOME = "${tool 'openjdk-11'}"
+    }
+
     stages {
         stage ('Compile Stage') {
             steps {
